@@ -532,7 +532,7 @@ static u8 behaviorDG(Sprite *p) {
 		p->flags = SF_PALINDROME;
 	}
 	if (s->type ? !s->state || blaster && p == targetHit : !s->timer) {
-		if (!*s->ptr) s->ptr = &s->data[s->state == 1 && *s->data ?  2 : 0];
+		if (!*s->ptr) s->ptr = &s->data[s->state == 1 && *s->data ? 2 : 0];
 		if (s->type && !s->state) s->state = 1;
 		if (*s->ptr) { // recheck in case no movement
 			s8 d;
@@ -883,16 +883,16 @@ static u8 behaviorSV(Sprite *p) {
 	if (z && !lastz && spriteCount(pat_zapper) < 3) genZapper();
 	lastz = z;
 	h = spriteHit(p);
-	if (h->pat == pat_special) {
-		((SpriteU *)h)->state = STATE_HIT;
-		reserveInc();
-	}
-	else {
+	if (h) {
+		if (h->pat == pat_special) {
+			((SpriteU *)h)->state = STATE_HIT;
+			reserveInc();
+		}
+		else {
 #if NOHIT
-		p->frame = h ? 1 << AS : 0;
+			p->frame = 1 << AS;
 #else
-		SpriteU *s = (SpriteU *)p;
-		if (h) {
+			SpriteU *s = (SpriteU *)p;
 			spriteAnim(p, pat_bomb);
 			p->flags = SF_PALINDROME;
 			p->x -= 8 << PS;
@@ -900,9 +900,12 @@ static u8 behaviorSV(Sprite *p) {
 			playStart(5, MUSIC_BOMB, 0);
 			p->behavior = behaviorSVDead;
 			diffAdd(-16);
-		}
 #endif
+		}
 	}
+#if NOHIT
+	else p->frame = 0;
+#endif
 	return 1;
 }
 

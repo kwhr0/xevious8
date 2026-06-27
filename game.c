@@ -194,7 +194,7 @@ void gameMain(void) {
 	emitterStart(); // must be after bgStart()
 	do {
 #ifndef BG_ENABLE
-		clrs();
+		cls();
 #endif
 		if (bgUpdate()) emitterStart();
 		emitterUpdate();

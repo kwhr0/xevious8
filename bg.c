@@ -44,7 +44,7 @@ u8 bgStage(void) {
 #ifdef BG_ENABLE
 
 static void setup(void) {
-	extern const u16 bgdata[];
+	extern u16 bgdata[];
 	int ofs = ((int)*yofsp << 2) + 2;
 	ExpandWork *p = w;
 	u16 *op = &bgdata[ofs];

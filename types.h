@@ -19,8 +19,13 @@ typedef unsigned long u32;
 #define KEY_A			16
 #define KEY_B			32
 
+#ifdef INS8070
+#define VRAM	((u8 *)0xe000)
+#define VRAM2	((u8 *)0xe800)
+#else
 #define VRAM	((u8 *)0xf000)
 #define VRAM2	((u8 *)0xf800)
+#endif
 #define PRINTER	(*(u8 *)0xeff0)
 #define VRAMADR	(*(u8 *)0xeff1)
 #define SN		(*(u8 *)0xeff2)

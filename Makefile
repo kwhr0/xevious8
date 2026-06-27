@@ -24,8 +24,28 @@ ifeq ($(MPU),6809)
 CC = cmoc
 endif
 
+ifeq ($(MPU),6502)
+CC = cc65
+endif
+
 ifeq ($(MPU),z80)
 CC = sdcc
+endif
+
+# group
+
+ifeq ($(MPU),6800)
+IS68 = 1
+endif
+ifeq ($(MPU),6809)
+IS68 = 1
+endif
+
+ifeq ($(MPU),8080)
+IS80 = 1
+endif
+ifeq ($(MPU),z80)
+IS80 = 1
 endif
 
 # settings for each compiler
@@ -50,6 +70,19 @@ MKPAT = ./mkpat_cmoc.pl
 MKBG = ./mkbg_cmoc.pl
 endif
 
+ifeq ($(CC),cc65)
+OBJS = crt0-cc65.o
+AS = ca65
+LD = ld65
+ASFLAGS = -I /opt/cc65/share/cc65/asminc
+CFLAGS = -O
+LDFLAGS = -L /opt/cc65/share/cc65/lib -C ld65.cfg -m a.map
+LIBS = none.lib
+NM =
+MKPAT = ./mkpat_cc65.pl
+MKBG = ./mkbg_cc65.pl
+endif
+
 ifeq ($(CC),sdcc)
 AS = sdasz80
 ASFLAGS = -lsw
@@ -63,19 +96,25 @@ MKBG = ./mkbg_sdcc.pl
 endif
 
 ifeq ($(CC),fcc)
-CFLAGS = -m$(MPU) -O -S
 OBJS = crt0-$(MPU).o
 LIBS = /opt/fcc/lib/$(MPU)/lib$(MPU).a
-LDFLAGS = -b -C0x100 -m a.map
+LDFLAGS = -b -m a.map
+ifeq ($(MPU),6502)
+CFLAGS = -m$(MPU) -Os -S
+LDFLAGS += -C0x200
+else
+CFLAGS = -m$(MPU) -O -S
 endif
-
-#
-
-ifeq ($(MPU),8080)
-IS80 = 1
+ifneq ($(IS68),)
+LDFLAGS += -C0x100
 endif
-ifeq ($(MPU),z80)
-IS80 = 1
+ifneq ($(IS80),)
+LDFLAGS += -C0x80
+endif
+ifeq ($(MPU),8070)
+CFLAGS += -DINS8070
+LDFLAGS += -C1 -Z0xff00
+endif
 endif
 
 OBJS += main.o base.o mathi.o game.o chr.o emitter.o es.o sprite.o sp.o pattern.o bg.o
@@ -115,15 +154,25 @@ else
 	$(LD) $(LDFLAGS) -o a.out $(OBJS) $(LIBS)
 endif
 ifeq ($(CC),cmoc)
-	mv a.out a.bin
+	mv a.out a.tmp
 	dd if=/dev/zero of=a.out bs=256 count=1
-	cat a.bin >> a.out
+	cat a.tmp >> a.out
+endif
+ifeq ($(CC),cc65)
+	mv a.out a.tmp
+	dd if=/dev/zero of=a.out bs=512 count=1
+	cat a.tmp >> a.out
+endif
+ifneq ($(IS68),)
+	f9dasm -$(MPU) a.out > a.lst
 endif
 ifneq ($(IS80),)
 	z80dasm -l -t -g 0 a.out > a.lst
-else
-	f9dasm -$(MPU) a.out > a.lst
 endif
+ifeq ($(MPU),6502)
+	dcc6502 -c -d -o 512 -s 512 a.out > a.lst
+endif
+
 ifneq ($(NM),)
 	./mkadr.pl $(NM) > a.adr
 endif
@@ -171,5 +220,5 @@ endif
 
 clean:
 	rm -f bgconf.h es.c mkmusic music.h pattern.* tone.c
-	rm -f *.{lst,o,rel,s,sym} a.{adr,ihx,map,noi,out}
+	rm -f *.{lst,o,rel,s,sym} a.{adr,ihx,map,noi,out,tmp}
 	rm -f $(CLEAN_ASM)

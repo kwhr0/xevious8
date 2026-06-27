@@ -1,0 +1,27 @@
+-mjwx
+-i a.ihx
+-b _CODE = 0x68
+-b _HEAP_END = 0xef00
+-k /usr/local/share/sdcc/lib/z80
+-k /opt/homebrew/share/sdcc/lib/z80
+-l z80
+crt0-sdcc.rel
+base.rel
+bg.rel
+bgdata.rel
+chr.rel
+emitter.rel
+es.rel
+game.rel
+main.rel
+mathi.rel
+;mml.rel
+;name.rel
+pattern.rel
+;play.rel
+sp.rel
+sprite.rel
+;title.rel
+;tone.rel
+;music.rel
+-e

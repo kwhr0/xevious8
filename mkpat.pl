@@ -76,14 +76,14 @@ open(H, "> pattern.h") || die;
 foreach (sort keys %h) {
 	next unless /(\D+)\d/;
 	if ($1 ne $name) {
-		print H "extern const Pattern ${t}[];\n" if $name;
+		print H "extern Pattern ${t}[];\n" if $name;
 		$t = $1;
 		print O "\t.export\t_$t\n_$t:\n\t.byte\t$info{$t}\n";
 	}
 	$name = $1;
 	printf O "\t.word\t0x%x\n", $h{$_};
 }
-print H "extern const Pattern ${t}[];\n";
+print H "extern Pattern ${t}[];\n";
 close H;
 close O;
 exit 0;
