@@ -3,11 +3,6 @@
 	.code
 start:
 	orcc	#$10		; disable interrupt
-	clra
-	clrb
-	std	@zero
-	incb
-	std	@one
 	lds	#$efef	; extended
 	ldx	#interrupt
 	stx	$fff8
