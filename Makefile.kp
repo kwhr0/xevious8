@@ -1,0 +1,52 @@
+BG = 1
+SND = 0
+FULL = 0
+
+CC = ~/Library/Developer/Xcode/DerivedData/cckp-*/Build/Products/Release/cckp
+MKPAT = ./mkpat_kp.pl
+MKBG = ./mkbg_kp.pl
+
+SRCS = main.c base.c mathi.c game.c chr.c emitter.c es.c sprite.c sp.c pattern.c bg.c
+
+# settings for options
+
+CFLAGS = -DKP -s 49000
+
+ifneq ($(BG),0)
+CFLAGS += -DBG_ENABLE
+SRCS += bgdata.c
+endif
+
+ifneq ($(SND),0)
+CFLAGS += -DSND_ENABLE
+SRCS += music.c play.c tone.c
+endif
+ifneq ($(FULL),0)
+CFLAGS += -DFULL
+SRCS += title.c name.c
+endif
+
+all: pattern.h music.h $(SRCS)
+	$(CC) $(CFLAGS) $(LDFLAGS) $(SRCS)
+
+bgdata.c: $(MKBG) map.bmp
+	$(MKBG) map.bmp
+
+es.c: essrc ./mkes.pl
+	./mkes.pl $< > $@
+
+music.h music.s: mkmusic
+	./mkmusic
+
+mkmusic: msrc.cpp mkmusic.h mml.c tone.c
+	c++ -std=c++11 -Wno-deprecated -o $@ $< mml.c tone.c
+
+tone.c: mktone.pl
+	./mktone.pl >$@
+
+pattern.h pattern.c: $(MKPAT) sprite.tim
+	$(MKPAT) sprite.tim
+
+clean:
+	rm -f bgconf.h bgdata.c es.c mkmusic music.h pattern.* tone.c
+	rm -f *.{bin,lst,o,rel,s,sym} a.{adr,ihx,map,noi,out,srec,tmp}

@@ -9,7 +9,11 @@
 
 typedef struct {
 	u8 n, w, pw, ph;
+#ifdef __CC65__
 	u16 ofs[1];
+#else
+	u16 ofs[];
+#endif
 } Pattern;
 
 typedef struct Sprite {

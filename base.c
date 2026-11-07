@@ -13,8 +13,12 @@ void cls(void) {
 	bzero(vram, XN * YN);
 }
 
+void clrs(void) {
+	bzero(vram + 18 * XN, XN * 136);
+}
+
 void printf(const char *format, ...) {
-	u16 *ap = (u16 *)&format;
+	uint *ap = (uint *)&format;
 	u8 *p = (u8 *)format;
 #ifdef __CHIBICC__
 	ap += 2;
@@ -25,9 +29,9 @@ void printf(const char *format, ...) {
 #define next_ap	(++ap)
 #endif
 	while (*p) {
-		u8 c[7];
+		u8 c[12]; // for 32bit
 		u8 a, b, f, i, l, n, r, t, u;
-		u16 v;
+		uint v;
 		u8 *q;
 		switch (t = *p++) {
 		case '%':
@@ -58,7 +62,7 @@ void printf(const char *format, ...) {
 				if (f = !u && (s16)v < 0) v = -v;
 				c[i = sizeof(c) - 1] = 0;
 				do {
-					u16 d = v / r, t1 = v - d * r + '0';
+					uint d = v / r, t1 = v - d * r + '0';
 					c[--i] = t1 > '9' ? t1 + a : t1;
 					v = d;
 				} while (v);
@@ -91,6 +95,13 @@ u16 rand(void) { // xorshift
 u16 R(u16 n) {
 	return (u16)((u32)n * rand() >> 15);
 }
+
+#ifdef KP
+u8 interruptCount;
+void interrupt1(void) {
+	interruptCount++;
+}
+#endif
 
 void waitVSync(u8 frames) {
 	u8 dif = (u8)interruptCount - frameCount;

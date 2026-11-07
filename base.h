@@ -10,6 +10,11 @@
 #define wait()	asm("wai")
 #define ei()	asm("cli")
 #define di()	asm("sei")
+#elif defined(KP)
+#define sleep()
+#define wait()
+#define ei()
+#define di()
 #else
 void sleep(void);
 void wait(void);

@@ -176,7 +176,7 @@ endif
 ifneq ($(NM),)
 	./mkadr.pl $(NM) > a.adr
 endif
-	./total.sh
+	./total.pl
 
 .asm.o:
 	$(AS) $(ASFLAGS) -l$(@:.o=.lst) -o $@ $<
